@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from threading import Lock
-from dal.monitored_groups import load_groups
+from dal.group_helpers import load_groups
 from dal.monitored_users import load_monitored_users
 import os
 import telebot
@@ -24,10 +24,9 @@ bot_state = {
     'driver': None,
     'monitored_users': set(),
     'last_command_time': None,  # Add this to track last command time
-    'group_data': {},
+    'group_data': load_groups(),
 }
 
-bot_state['group_data'] = load_groups()
 bot_state['monitored_users'] = load_monitored_users()
 
 driver_lock = Lock()

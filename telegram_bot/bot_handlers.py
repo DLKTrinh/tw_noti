@@ -4,7 +4,7 @@ from config import TELEGRAM_CHAT_ID, bot_state, bot
 from utils.cleanup_temp import cleanup_temp_files
 from utils.ensure_driver import ensure_valid_driver
 from dal.monitored_users import load_monitored_users
-from dal.monitored_groups import save_groups
+from dal.group_helpers import save_groups
 from datetime import datetime
 
 def save_monitored_users():
@@ -148,6 +148,7 @@ def list_users(message):
     else:
         bot.reply_to(message, "No users are being monitored.")
 
+#--------------------------------------------------------------------#
 
 @bot.message_handler(commands=['creategr'])
 def create_group(message):
@@ -155,15 +156,27 @@ def create_group(message):
         bot.reply_to(message, "Unauthorized access.")
         return
     try:
-        group_name = message.text.split()[1]
+        parts = message.text.split()
+        if len(parts) < 3:
+            bot.reply_to(message, "Usage: /creategr groupname threshold")
+            return
+
+        group_name = parts[1]
+        threshold = int(parts[2])
+
         if group_name in bot_state['group_data']:
             bot.reply_to(message, f"Group '{group_name}' already exists.")
         else:
-            bot_state['group_data'][group_name] = []
+            bot_state['group_data'][group_name] = {
+                "threshold": threshold,
+                "members": []
+            }
             save_groups(bot_state['group_data'])
-            bot.reply_to(message, f"Group '{group_name}' created successfully ✅")
-    except IndexError:
-        bot.reply_to(message, "Usage: /creategr groupname")
+            bot.reply_to(message, f"✅ Group '{group_name}' created with threshold {threshold}.")
+    except ValueError:
+        bot.reply_to(message, "Threshold must be an integer.")
+    except Exception as e:
+        bot.reply_to(message, f"Error: {e}")
 
 
 @bot.message_handler(commands=['addtogr'])
@@ -179,7 +192,7 @@ def add_to_group(message):
             bot.reply_to(message, f"Group '{group_name}' does not exist.")
             return
 
-        group_users = set(bot_state['group_data'][group_name])
+        group_users = set(bot_state['group_data'][group_name]["members"])
         added, not_found = [], []
 
         for username in usernames:
@@ -189,7 +202,7 @@ def add_to_group(message):
                 group_users.add(username)
                 added.append(username)
 
-        bot_state['group_data'][group_name] = sorted(group_users)
+        bot_state['group_data'][group_name]["members"] = sorted(group_users)
         save_groups(bot_state['group_data'])
 
         response = []
@@ -214,11 +227,11 @@ def remove_from_group(message):
             bot.reply_to(message, f"Group '{group_name}' does not exist.")
             return
 
-        group_users = set(bot_state['group_data'][group_name])
+        group_users = set(bot_state['group_data'][group_name]["members"])
         removed = [u for u in usernames if u in group_users]
         group_users -= set(removed)
 
-        bot_state['group_data'][group_name] = sorted(group_users)
+        bot_state['group_data'][group_name]["members"] = sorted(group_users)
         save_groups(bot_state['group_data'])
 
         if removed:
@@ -265,13 +278,46 @@ def show_group_users(message):
         return
     try:
         group_name = message.text.split()[1]
-        users = bot_state['group_data'].get(group_name, [])
+        group_info = bot_state['group_data'].get(group_name)
+        if not group_info:
+            bot.reply_to(message, f"Group '{group_name}' does not exist.")
+            return
+
+        users = group_info.get("members", [])
+        threshold = group_info.get("threshold", 2)
+
         if users:
-            bot.reply_to(message, f"👥 Users in '{group_name}':\n" + "\n".join(users))
+            bot.reply_to(
+                message,
+                f"👥 Group '{group_name}' (min: {threshold})\n" + "\n".join(users)
+            )
         else:
-            bot.reply_to(message, f"Group '{group_name}' is empty or does not exist.")
+            bot.reply_to(message, f"👥 Group '{group_name}' (threshold: {threshold}) has no members yet.")
     except IndexError:
         bot.reply_to(message, "Usage: /showgr groupname")
+
+
+@bot.message_handler(commands=['set'])
+def set_group_threshold(message):
+    if message.chat.id != int(TELEGRAM_CHAT_ID):
+        bot.reply_to(message, "Unauthorized access.")
+        return
+    try:
+        _, group_name, threshold = message.text.split()
+        threshold = int(threshold)
+        if threshold <= 0:
+            bot.reply_to(message, "Threshold must be greater than 0.")
+            return
+        if group_name not in bot_state['group_data']:
+            bot.reply_to(message, f"Group '{group_name}' does not exist.")
+            return
+        bot_state['group_data'][group_name]["threshold"] = threshold
+        save_groups(bot_state['group_data'])
+        bot.reply_to(message, f"✅ Threshold for '{group_name}' set to {threshold}.")
+    except ValueError:
+        bot.reply_to(message, "Threshold must be an integer.")
+    except Exception:
+        bot.reply_to(message, "Usage: /set groupname number")
 
 
 @bot.message_handler(commands=['help'])
@@ -292,13 +338,14 @@ Available commands:
 
         -------------------------------------------------------------
 
-/creategr - Create a group (/create group1)
+/creategr - Create a group (/create group1 number)
 /addtogr - Add users to group (/addtogr group1 user1 user2 user3 ...)
 /removefromgr - Remove users from a group (/removefromgr group1 user1 user2 user3)
 /deletegr - Delete a group (/deletegr group1)
 /listgr - List all groups
 /showgr - Show all the users in a group (/showgr group1)
 /help - Show this help message
+/set - Set the threshold for a group (/setthreshold group1 number)
 
 Note: You can add or remove users while the bot is running!
 The bot checks each monitored user every 5 minutes.

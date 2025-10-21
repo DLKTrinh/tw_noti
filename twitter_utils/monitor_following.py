@@ -3,7 +3,7 @@ from .fetch_following_list import get_following_list
 from dal.following_list import load_existing_following, save_to_csv
 from dal.get_all import get_all_users_who_follow_target
 from telegram_bot.telegram_bot import send_telegram_message
-from dal.monitored_groups import get_group_users, get_user_groups
+from dal.group_helpers import get_group_users, get_user_groups, get_group_threshold
 from config import bot_state
 
 def monitor_following(username, driver):
@@ -64,14 +64,13 @@ def monitor_following(username, driver):
 
                         # Count how many are in this group
                         group_followers = [u for u in followers_of_target if u in group_members]
-                        print(f"Group followers of '{followed_user}' within '{group_name}': {group_followers}")
 
-                        if len(group_followers) >= 5:  # threadhold
+                        threshold = get_group_threshold(group_data, group_name)
+                        if len(group_followers) >= threshold:  
                             shared_message = (
                                 f"📢 Group \"{group_name.title()}\": https://x.com/{followed_user} \n"
                                 f"({', '.join(group_followers)})"
                             )
-
                             print(f"Sending Telegram alert for '{followed_user}' in group '{group_name}'")
                             send_telegram_message(shared_message)
         else:
