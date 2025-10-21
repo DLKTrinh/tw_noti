@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.env
+*.log
+.vscode/
+.idea/
+__pycache__/
+*.DS_Store
+venv/
+.env/
+*.sqlite3
+*.csv
+*.json
+*.pkl
+.venv
+users/
+chrome_temp/
