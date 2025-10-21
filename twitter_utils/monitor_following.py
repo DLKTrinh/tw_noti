@@ -34,7 +34,6 @@ def monitor_following(username, driver):
             # Create message with shared following information
             group_data = bot_state.get("group_data", {})
             user_groups = get_user_groups(group_data, username)
-            print(f"[DEBUG] User '{username}' belongs to groups: {user_groups}")
 
             if not user_groups:
                 new_users_messages = []
@@ -65,20 +64,16 @@ def monitor_following(username, driver):
 
                         # Count how many are in this group
                         group_followers = [u for u in followers_of_target if u in group_members]
-                        print(f"[DEBUG] Group followers of '{followed_user}' within '{group_name}': {group_followers}")
+                        print(f"Group followers of '{followed_user}' within '{group_name}': {group_followers}")
 
-                        if len(group_followers) >= 2:  # 2 or more other members followed
+                        if len(group_followers) >= 5:  # threadhold
                             shared_message = (
                                 f"📢 Group \"{group_name.title()}\": https://x.com/{followed_user} \n"
                                 f"({', '.join(group_followers)})"
                             )
 
-                            print(f"[DEBUG] Sending Telegram alert for '{followed_user}' in group '{group_name}'")
+                            print(f"Sending Telegram alert for '{followed_user}' in group '{group_name}'")
                             send_telegram_message(shared_message)
-                            print(f"[INFO] Group '{group_name}' detected {len(group_followers)}+ follows for {followed_user}")
-                        else:
-                            print(f"[DEBUG] Not enough followers in '{group_name}' for '{followed_user}' (found {len(group_followers)})")
-
         else:
             print("First time monitoring this user - skipping notification")
         
