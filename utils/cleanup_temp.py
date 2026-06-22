@@ -1,7 +1,69 @@
 import os
+import shutil
+
+# Subfolders inside the Chrome profile itself that are pure, regenerable
+# cache - safe to wipe without touching login/session state. Cookies,
+# Local Storage, IndexedDB, Login Data, etc. are deliberately NOT in this
+# list and are never touched.
+SAFE_TO_CLEAR_PROFILE_SUBFOLDERS = [
+    "Code Cache",
+    "GPUCache",
+]
+
+# Subfolders at the User Data root (sibling to the profile, not inside it)
+# that are also safe, regenerable cache/crash data.
+SAFE_TO_CLEAR_USER_DATA_SUBFOLDERS = [
+    "Crashpad",
+    "ShaderCache",
+    "GrShaderCache",
+]
+
+
+def cleanup_profile_cache(chrome_profile_dir, chrome_profile_name):
+    """
+    Periodically clear ONLY regenerable Chrome cache folders inside the
+    bot's persistent, logged-in profile - to stop disk usage growing
+    forever. Deliberately does NOT touch Cookies, Local Storage,
+    IndexedDB, Login Data, or anything tied to the logged-in session, so
+    this can run on a schedule (or at shutdown) without ever logging the
+    bot out.
+    """
+    profile_path = os.path.join(chrome_profile_dir, chrome_profile_name)
+    cleared = []
+    skipped = []
+
+    targets = (
+        [(profile_path, name) for name in SAFE_TO_CLEAR_PROFILE_SUBFOLDERS] +
+        [(chrome_profile_dir, name) for name in SAFE_TO_CLEAR_USER_DATA_SUBFOLDERS]
+    )
+
+    for base, name in targets:
+        full_path = os.path.join(base, name)
+        if os.path.exists(full_path):
+            try:
+                size_before = sum(
+                    os.path.getsize(os.path.join(r, f))
+                    for r, _, files in os.walk(full_path)
+                    for f in files
+                )
+                shutil.rmtree(full_path, ignore_errors=True)
+                cleared.append((full_path, size_before))
+            except Exception:
+                skipped.append(full_path)
+
+    if cleared:
+        total_mb = sum(size for _, size in cleared) / (1024 * 1024)
+        print(f"\nCleared profile cache folders ({total_mb:.1f} MB freed):")
+        for path, size in cleared:
+            print(f"  - {path} ({size / (1024 * 1024):.1f} MB)")
+    if skipped:
+        print(f"Could not clear (likely locked by the running browser): {skipped}")
+
 
 def cleanup_temp_files():
-    # Clean up our chrome_temp directory
+    # Clean up our chrome_temp directory (legacy - harmless no-op now that
+    # the bot uses a persistent profile instead of a disposable one, kept
+    # here in case anything still creates it)
     temp_dir = os.path.join(os.getcwd(), "chrome_temp")
     files_deleted = 0
     files_skipped = 0
@@ -42,7 +104,6 @@ def cleanup_temp_files():
                 try:
                     full_path = os.path.join(windows_temp, item)
                     if os.path.isdir(full_path):
-                        import shutil
                         shutil.rmtree(full_path, ignore_errors=True)
                         chrome_temps += 1
                 except Exception:

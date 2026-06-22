@@ -2,12 +2,12 @@ import time
 import threading
 import sys
 from telegram_bot.bot_handlers import bot
-from config import bot_state
+from config import bot_state, chrome_profile_dir, chrome_profile_name
 from datetime import datetime
 from selenium.common.exceptions import WebDriverException
 from utils.ensure_driver import ensure_valid_driver
 from twitter_utils.monitor_following import monitor_following
-from utils.cleanup_temp import cleanup_temp_files
+from utils.cleanup_temp import cleanup_temp_files, cleanup_profile_cache
 
 
 def bot_polling():
@@ -62,6 +62,11 @@ def main():
                     if cleanup_counter >= 12:  # After 12 checks (1 hour)
                         print("\nCleaning up temporary files...")
                         cleanup_temp_files()
+                        # NOTE: only clears regenerable cache (Code Cache,
+                        # GPUCache, Crashpad, etc) - never touches cookies,
+                        # local storage, or anything tied to the logged-in
+                        # session, so this can't log the bot out.
+                        cleanup_profile_cache(chrome_profile_dir, chrome_profile_name)
                         cleanup_counter = 0  # Reset counter
 
                     time.sleep(check_interval)
@@ -93,6 +98,7 @@ def main():
         try:
             print("Cleaning up temporary files...")
             cleanup_temp_files()
+            cleanup_profile_cache(chrome_profile_dir, chrome_profile_name)
             print("Temporary files cleaned up")
         except Exception as e:
             print(f"Error during final cleanup: {e}")
@@ -102,6 +108,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-            

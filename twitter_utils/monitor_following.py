@@ -6,6 +6,11 @@ from telegram_bot.telegram_bot import send_telegram_message
 from dal.group_helpers import get_group_users, get_user_groups, get_group_threshold
 from config import bot_state
 
+# How many consecutive failed fetches for the same user before we alert
+# instead of failing silently every cycle.
+FAILURE_ALERT_THRESHOLD = 3
+
+
 def monitor_following(username, driver):
     csv_file = f"{username}_following.csv"
     user_dir = os.path.join(os.getcwd(), "users")
@@ -21,7 +26,30 @@ def monitor_following(username, driver):
     sample_following = get_following_list(username, driver, 40)
     if not sample_following:  # If we couldn't get any users, skip this round
         print("Could not fetch sample following list. Skipping this check.")
+
+        failures = bot_state.setdefault('fetch_failures', {})
+        failures[username] = failures.get(username, 0) + 1
+        count = failures[username]
+
+        if count == FAILURE_ALERT_THRESHOLD:
+            send_telegram_message(
+                f"⚠️ Could not fetch the following list for {username} "
+                f"{count} times in a row. It may be protected, suspended, "
+                f"renamed, or X may have changed their page layout - "
+                f"worth checking manually."
+            )
+        elif count > FAILURE_ALERT_THRESHOLD and count % 12 == 0:
+            # Roughly once an hour at the default 5-minute check interval,
+            # remind again so it doesn't get lost in the noise - but not
+            # every single cycle.
+            send_telegram_message(
+                f"⚠️ Still failing to fetch the following list for "
+                f"{username} ({count} consecutive failures)."
+            )
         return
+
+    # Fetch succeeded - clear any failure streak for this user
+    bot_state.setdefault('fetch_failures', {})[username] = 0
             
     # Check if any new users in the sample
     new_following = set(sample_following) - existing_following

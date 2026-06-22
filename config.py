@@ -12,8 +12,11 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 chrome_driver_path = os.getenv('PATH_TO_CHROMEDRIVER')
 
-# File to store cookies
-COOKIES_FILE = 'twitter_cookies.pkl'
+chrome_profile_dir = os.getenv(
+    'CHROME_PROFILE_DIR',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome_profile_copy')
+)
+chrome_profile_name = os.getenv('CHROME_PROFILE_NAME', 'Profile 1')
 
 # Set up the Telegram bot
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
@@ -25,6 +28,7 @@ bot_state = {
     'monitored_users': set(),
     'last_command_time': None,  # Add this to track last command time
     'group_data': load_groups(),
+    'fetch_failures': {},  # username -> consecutive failed-fetch count
 }
 
 bot_state['monitored_users'] = load_monitored_users()
