@@ -5,21 +5,21 @@ import shutil
 # cache - safe to wipe without touching login/session state. Cookies,
 # Local Storage, IndexedDB, Login Data, etc. are deliberately NOT in this
 # list and are never touched.
-SAFE_TO_CLEAR_PROFILE_SUBFOLDERS = [
+SAFE_TO_CLEAR_PROFILE_SUBFOLDERS: list[str] = [
     "Code Cache",
     "GPUCache",
 ]
 
 # Subfolders at the User Data root (sibling to the profile, not inside it)
 # that are also safe, regenerable cache/crash data.
-SAFE_TO_CLEAR_USER_DATA_SUBFOLDERS = [
+SAFE_TO_CLEAR_USER_DATA_SUBFOLDERS: list[str] = [
     "Crashpad",
     "ShaderCache",
     "GrShaderCache",
 ]
 
 
-def cleanup_profile_cache(chrome_profile_dir, chrome_profile_name):
+def cleanup_profile_cache(chrome_profile_dir: str, chrome_profile_name: str) -> None:
     """
     Periodically clear ONLY regenerable Chrome cache folders inside the
     bot's persistent, logged-in profile - to stop disk usage growing
@@ -29,10 +29,10 @@ def cleanup_profile_cache(chrome_profile_dir, chrome_profile_name):
     bot out.
     """
     profile_path = os.path.join(chrome_profile_dir, chrome_profile_name)
-    cleared = []
-    skipped = []
+    cleared: list[tuple[str, int]] = []
+    skipped: list[str] = []
 
-    targets = (
+    targets: list[tuple[str, str]] = (
         [(profile_path, name) for name in SAFE_TO_CLEAR_PROFILE_SUBFOLDERS] +
         [(chrome_profile_dir, name) for name in SAFE_TO_CLEAR_USER_DATA_SUBFOLDERS]
     )
@@ -60,7 +60,7 @@ def cleanup_profile_cache(chrome_profile_dir, chrome_profile_name):
         print(f"Could not clear (likely locked by the running browser): {skipped}")
 
 
-def cleanup_temp_files():
+def cleanup_temp_files() -> None:
     # Clean up our chrome_temp directory (legacy - harmless no-op now that
     # the bot uses a persistent profile instead of a disposable one, kept
     # here in case anything still creates it)

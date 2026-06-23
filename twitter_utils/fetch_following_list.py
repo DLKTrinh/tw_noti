@@ -1,22 +1,23 @@
 import time
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 # Hard safety valves - the loop can NEVER hang forever, no matter what
 # weirdness the page throws at us.
-MAX_SCROLL_ITERATIONS = 60
-MAX_DURATION_SECONDS = 90
+MAX_SCROLL_ITERATIONS: int = 60
+MAX_DURATION_SECONDS: int = 90
 
 
-def get_following_list(username, driver, n):
+def get_following_list(username: str, driver: WebDriver, n: int) -> list[str]:
     url = f'https://twitter.com/{username}/following'
-    following_set = set()
+    following_set: set[str] = set()
 
+    print(f"[{username}] Navigating to {url}")
     try:
-        driver.refresh()
         driver.get(url)
-        time.sleep(5)  # Initial load wait
+        time.sleep(8)  # Initial load wait
 
         last_height = driver.execute_script("return document.body.scrollHeight")
         scroll_attempts = 0
@@ -90,7 +91,7 @@ def get_following_list(username, driver, n):
                 except Exception as diag_err:
                     print(f"[{username}] DIAGNOSTIC capture failed: {diag_err}")
 
-            driver.execute_script("window.scrollBy(0, 350)")
+            driver.execute_script("window.scrollBy(250, 500)")
             time.sleep(0.5)
 
             new_height = driver.execute_script("return document.body.scrollHeight")

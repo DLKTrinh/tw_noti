@@ -1,7 +1,9 @@
 import os
 import csv
+from typing import Iterable
 
-def save_to_csv(username, following_list, append=False):
+
+def save_to_csv(username: str, following_list: Iterable[str], append: bool = False) -> str:
     # Create user directory if it doesn't exist
     user_dir = os.path.join(os.getcwd(), "users")
     if not os.path.exists(user_dir):
@@ -26,12 +28,12 @@ def save_to_csv(username, following_list, append=False):
     return filename
 
 
-def load_existing_following(filename):
+def load_existing_following(filename: str) -> set[str]:
     # Ensure we're looking in the user directory
     user_dir = os.path.join(os.getcwd(), "users")
     full_path = os.path.join(user_dir, os.path.basename(filename))
     
-    existing_following = set()
+    existing_following: set[str] = set()
     try:
         with open(full_path, 'r', encoding='utf-8') as file:
             reader = csv.reader(file)

@@ -2,15 +2,15 @@ import time
 import threading
 import sys
 from telegram_bot.bot_handlers import bot
-from config import bot_state, chrome_profile_dir, chrome_profile_name
+from config import bot_state
 from datetime import datetime
 from selenium.common.exceptions import WebDriverException
 from utils.ensure_driver import ensure_valid_driver
 from twitter_utils.monitor_following import monitor_following
-from utils.cleanup_temp import cleanup_temp_files, cleanup_profile_cache
+from utils.cleanup_temp import cleanup_temp_files
 
 
-def bot_polling():
+def bot_polling() -> None:
     while True:
         try:
             print("Starting bot polling...")
@@ -20,40 +20,44 @@ def bot_polling():
             print("Restarting bot polling in 5 seconds...")
             time.sleep(5)
 
-def main():
-    
+
+def main() -> None:
+
     # Configure bot polling with longer timeout and retry
     bot.threaded = True
     bot.skip_pending = True
-    
+
     # Start the bot polling in a separate thread with error handling
     bot_thread = threading.Thread(target=bot_polling, daemon=True)
     bot_thread.start()
-    
-    check_interval = 300  # 5 minutes in seconds
-    cleanup_counter = 0  # Counter to track number of checks
+
+    check_interval: int = 300  # 5 minutes in seconds
+    cleanup_counter: int = 0  # Counter to track number of checks
 
     try:
         while True:
             if bot_state['running']:
                 try:
                     print(f"\nStarting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                    
+
                     # Ensure we have a valid driver before starting checks
                     if not ensure_valid_driver():
                         print("Failed to initialize driver, waiting 60 seconds before retry...")
                         time.sleep(60)
                         continue
 
+                    driver = bot_state['driver']
+                    assert driver is not None  # guaranteed by ensure_valid_driver() above
                     for username in bot_state['monitored_users']:
                         try:
                             print(f"\nMonitoring user: {username}")
-                            monitor_following(username, bot_state['driver'])
+                            monitor_following(username, driver)
                         except WebDriverException as e:
                             print(f"WebDriver error for {username}: {e}")
                             # Force driver reinitialization on next iteration
                             bot_state['driver'] = None
-                            continue
+                            driver = None
+                            break
                         except Exception as e:
                             print(f"Error monitoring {username}: {e}")
                             continue
@@ -66,7 +70,6 @@ def main():
                         # GPUCache, Crashpad, etc) - never touches cookies,
                         # local storage, or anything tied to the logged-in
                         # session, so this can't log the bot out.
-                        cleanup_profile_cache(chrome_profile_dir, chrome_profile_name)
                         cleanup_counter = 0  # Reset counter
 
                     time.sleep(check_interval)
@@ -76,7 +79,7 @@ def main():
                     if bot_state['driver']:
                         try:
                             bot_state['driver'].quit()
-                        except:
+                        except Exception:
                             pass
                         bot_state['driver'] = None
                     print("Waiting 60 seconds before retrying...")
@@ -98,13 +101,13 @@ def main():
         try:
             print("Cleaning up temporary files...")
             cleanup_temp_files()
-            cleanup_profile_cache(chrome_profile_dir, chrome_profile_name)
             print("Temporary files cleaned up")
         except Exception as e:
             print(f"Error during final cleanup: {e}")
 
         print("Shutdown complete!")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

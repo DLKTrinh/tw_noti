@@ -1,4 +1,5 @@
 """
+refresh_profile_login.py
 
 Run this if the bot's dedicated Chrome profile (chrome_profile_copy) ever
 gets logged out - session expiry, X forcing a re-auth, etc. Opens that
@@ -19,7 +20,7 @@ from selenium.webdriver.chrome.options import Options
 from config import chrome_driver_path, chrome_profile_dir, chrome_profile_name
 
 
-def refresh_login():
+def refresh_login() -> None:
     service = Service(chrome_driver_path)
     options = Options()
     options.add_argument(f"--user-data-dir={chrome_profile_dir}")
@@ -29,7 +30,7 @@ def refresh_login():
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
 
-    driver = webdriver.Chrome(service=service, options=options)
+    driver: webdriver.Chrome = webdriver.Chrome(service=service, options=options)
 
     try:
         driver.get("https://x.com/login")

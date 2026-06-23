@@ -1,0 +1,59 @@
+{
+   "checksum": "2ef1abbbd4ea1eaa84a8edacd0d0b0e8",
+   "roots": {
+      "bookmark_bar": {
+         "children": [  ],
+         "date_added": "13394718210396702",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13400331513868076",
+            "date_last_used": "0",
+            "guid": "87216e5a-7ab6-414d-a308-90efec961a49",
+            "id": "5",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Bolt.new project",
+            "type": "url",
+            "url": "https://bolt.new/"
+         }, {
+            "date_added": "13410417236104580",
+            "date_last_used": "0",
+            "guid": "34ea97a3-aae1-427b-833e-291da75912a4",
+            "id": "7",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "localhost",
+            "type": "url",
+            "url": "http://localhost:5173/books"
+         } ],
+         "date_added": "13394718210396712",
+         "date_last_used": "0",
+         "date_modified": "13410417236104580",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13394718210396717",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "sync_metadata": "CuABCr8BCIiBAhK4ASAAkgGjAQqgAQoOY2hyb21lX3N5bmNfYm0SBTUxIWJtGhIJ8BWxlr1UBgAR8BWxlr1UBgAiNAmh3pqWvVQGABADGcEIrPFUzESgIAEqHDUxIWJtL2ZkOjkxNjM3MjM1NTk0Njg4OTMxNjEiNAmh3pqWvVQGABADGcEIrPFUzESgIAEqHDUxIWJtL2ZkOjkxNjM3MjM1NTk0Njg4OTMxNjEpFfGxlr1UBgDqAQwIyYfe0QYQsLri2QMSACoYQ0lCSnBhclNDZGlOTllBMHlMenBGUT09SAMS7AEIBxLnAQocMFVEZ2hpQkphUFBHMW9Ua3F0WlUwSFd5VDF3PRJmWjpBRHF0QVp6ZVQrb3V4UStXMGVKZzBDT3dOQXE1aERZUHZXektiZWRNajJlblhVQTRHUGYwWm5WT0g2cVN0RWo2MWgwWmJUcEl4QXUxZ3BqNGo4WmxlMDQzTW03aG1HQlJudz09GAAgACgAMKLys9rcw5EDOIjhxdOyM0CI4cXTsjNKHHBFQ2wxT3JIQ00zcStWMGxEWjViYlVFYmlnRT1aHyIdqTNLZXZGNkh0YmNhUWVFQU5uY2hvUTFRbU12cz1lesVhtRLrAQgFEuYBChw0NVpTVlN0RW53MUtPT2x6SkxKM2EvRklyZDA9EmZaOkFEcXRBWnplVCtvdXhRK1cwZUpnMENPd05BcTUrdlJGQzJzVTlTUGhtNEUvWFBXbjdIWUpQMFBoTFBRSjFnRTNZck81TnFIQjc4ZklpTkZwU0NjOXFkT3dEbCt1d0pXZ1hBPT0YACAAKAAwt7qBvpiejwM4npCmio0zQJ6QpoqNM0ocdG9qRFVjYVUrOE5WRGliRkIyYnZtTUw3RTNNPVoeIhxTeDNzZ2pvRGpTZEJaUGo4Rmw3ekltTzRLb1U9ZccEyIISwwEIAxK+AQocbmpnRHU4OGVDcnZYcDg2cEQ3ZkhHY3FGcDg4PRJmWjpBRHF0QVp4Ympvem83YUpZSXVrdHJ6elNmM3VNdzBQSWdmWTc1dDRSZmFkTnpCeVc5WmEzL1VmMnJYRFE1QnkvdTZOMUpWcmFudjJ0L2o3R2M5NldoS283Vi93Q25mcDcwZz09GAAgACgAMKfFl+O5lZUDOABAAEoceXpOQjAxY241NEE3Y1JVMHVUKy9QZ21UdFVvPVoAZQAAAAASwwEIAhK+AQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRJmWjpBRHF0QVp4VUlhSHhRc3NydHFqSy9NQ3BSTjFuSG1OTXc0aUhYSFIxblpLZHhDNmZGWDV5WmFyMTdDTkJPS3dEcUpyRDJkRzR2QU8yNkZteEVZaDRCN1FBVmR6aFZZQ3V5UT09GAAgACgAMKfFl+O5lZUDOABAAEocb1BWa2h3QlJiVjY1S0NXUjIrSU9OSFdvT3U4PVoAZQAAAAASqwEIARKmAQoceXhKLzZmdmtlY3I3a3A1RVF6QjR0V0xwZGJFPRJOWjpBRHF0QVp3V015ZjB0NG0wK3FMeEplQ2hPTStDSWJydWx3MkNLOTNlSFFDR0YzVFRlTDVVdXZTOFpyeVVsUC8vSUw3bE8vRkxnYXIyGAAgACgAMKfFl+O5lZUDOABAAEocYVJDV0xnaEY5YjVJbnFLSUR2dUovanZRa0ZjPVoAZQAAAAAwATgA",
+   "version": 1
+}

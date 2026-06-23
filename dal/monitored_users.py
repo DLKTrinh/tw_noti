@@ -1,7 +1,7 @@
 import json
 
-# Load monitored users from file
-def load_monitored_users():
+def load_monitored_users() -> set[str]:
+    """Load monitored users from file."""
     try:
         with open('monitored_users.json', 'r') as f:
             return set(json.load(f))

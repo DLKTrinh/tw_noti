@@ -1,4 +1,5 @@
 import os
+from selenium.webdriver.remote.webdriver import WebDriver
 from .fetch_following_list import get_following_list
 from dal.following_list import load_existing_following, save_to_csv
 from dal.get_all import get_all_users_who_follow_target
@@ -8,10 +9,10 @@ from config import bot_state
 
 # How many consecutive failed fetches for the same user before we alert
 # instead of failing silently every cycle.
-FAILURE_ALERT_THRESHOLD = 3
+FAILURE_ALERT_THRESHOLD: int = 3
 
 
-def monitor_following(username, driver):
+def monitor_following(username: str, driver: WebDriver) -> None:
     csv_file = f"{username}_following.csv"
     user_dir = os.path.join(os.getcwd(), "users")
     full_path = os.path.join(user_dir, csv_file)
@@ -27,7 +28,7 @@ def monitor_following(username, driver):
     if not sample_following:  # If we couldn't get any users, skip this round
         print("Could not fetch sample following list. Skipping this check.")
 
-        failures = bot_state.setdefault('fetch_failures', {})
+        failures: dict[str, int] = bot_state.setdefault('fetch_failures', {})
         failures[username] = failures.get(username, 0) + 1
         count = failures[username]
 
@@ -52,7 +53,7 @@ def monitor_following(username, driver):
     bot_state.setdefault('fetch_failures', {})[username] = 0
             
     # Check if any new users in the sample
-    new_following = set(sample_following) - existing_following
+    new_following: set[str] = set(sample_following) - existing_following
     
     if new_following:
         print(f"\nFound total of {len(new_following)} new following:")
@@ -64,10 +65,10 @@ def monitor_following(username, driver):
             user_groups = get_user_groups(group_data, username)
 
             if not user_groups:
-                new_users_messages = []
+                new_users_messages: list[str] = []
                 for followed_user in new_following:
                     # Get all users who follow this person
-                    following_users = get_all_users_who_follow_target (followed_user)
+                    following_users = get_all_users_who_follow_target(followed_user)
 
                     # Always include current username first, then add others if they exist
                     other_users = [u for u in following_users if u != username]
